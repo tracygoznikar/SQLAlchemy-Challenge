@@ -21,15 +21,20 @@ def index():
 
 
 @app.route("/api/v1.0/precipitation")
-#def date_prcp():
+def date_prcp():
  # convert query results to a dictionary using date as the key and prcp as the value
+ session = Session(engine)
+ results = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date>='2016-08-23')
+ session.close()
+ prcp = list(np.ravel(results))
  #return JSON representation of dictionary
-
-  #  return jsonify
+ return jsonify(prcp)
 @app.route("/api/v1.0/stations")
-#def stations():
+def stations():
  # return JSON lost of stations from dataset
-
+ session = Session(engine)
+ station_name = session.query(Station.idd, Station.station, Stations.name).all()
+ session.close()
   #  return jsonify
 @app.route("/api/v1.0/tobs")
 #def tobs():
@@ -37,7 +42,7 @@ def index():
  #return JSON list of TOBS for the previous year
 
   #  return jsonify
-  @app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>")
 #def justice_league():
  # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
  #When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
