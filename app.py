@@ -47,10 +47,9 @@ def stations():
     session.close()
     result =list(np.ravel(results))
   #  return jsonify
-    retun jsonify(result)
+    return jsonify(result)
 @app.route("/api/v1.0/tobs")
 def tobs():
-
  # query the dates and temperature observations of the most active station for the last year
  #return JSON list of TOBS for the previous year
     session = Session(engine)
@@ -59,10 +58,28 @@ def tobs():
     filter(Measurement.station =='USC00519281').all()
     session.close()
     result =list(np.ravel(tob_ls_t))
+    return jsonify(result)
   #  return jsonify
-#@app.route("/api/v1.0/<start>")
-#def justice_league():
+
+@app.route("/api/v1.0/<start>")
+def start():
+    session = Session(engine)
+    tob_ls_t = session.query(func.min(Measurement.tobs),func.avg(Measurement.tobs),func.max(Measurement.tobs)).\
+    filter(Measurement.date>=start).all()
+    session.close()
+    result =list(np.ravel(tob_ls_t))
+    result_dict = {'TMIN':result[0],'TAVG':round(result[1],1),'TMAX ':result[2]}
+    return jsonify(result_dict)
  # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+@app.route("/api/v1.0/<start>/<end>")
+def s_e(start,end):
+    session = Session(engine)
+    tob_ls_t = session.query(func.min(Measurement.tobs),func.avg(Measurement.tobs),func.max(Measurement.tobs)).\
+    filter(Measurement.date>=start).filter(Measurement.date<=end).all()
+    session.close()
+    result =list(np.ravel(tob_ls_t))
+    result_dict = {'TMIN':result[0],'TAVG':round(result[1],1),'TMAX ':result[2]}
+    return jsonify(result_dict)
  #When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
  #When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
 
