@@ -31,33 +31,34 @@ def index():
     )
 
 
-
-
-
-
 @app.route("/api/v1.0/precipitation")
 def date_prcp():
  # convert query results to a dictionary using date as the key and prcp as the value
- session = Session(engine)
- prcp = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date>='2016-08-23')
- session.close()
- prcp = list(np.ravel(prcp))
+    session = Session(engine)
+    results = session.query(Measurement.date,Measurement.prcp).order_by(Measurement.date).all()
+    session.close()
+    return jsonify(dict(results))
  #return JSON representation of dictionary
- return jsonify(prcp)
 @app.route("/api/v1.0/stations")
 def stations():
  # return JSON lost of stations from dataset
- session = Session(engine)
- station_name = session.query(Station.idd, Station.station, Stations.name).all()
- session.close()
- station_name = list(np.ravel(station_name))
+    session = Session(engine)
+    results = session.query(Station.station).all()
+    session.close()
+    result =list(np.ravel(results))
   #  return jsonify
- return jsonify(station_name)
-#@app.route("/api/v1.0/tobs")
-#def tobs():
+    retun jsonify(result)
+@app.route("/api/v1.0/tobs")
+def tobs():
+
  # query the dates and temperature observations of the most active station for the last year
  #return JSON list of TOBS for the previous year
-
+    session = Session(engine)
+    tob_ls_t = session.query(Measurement.tobs).\
+    filter(Measurement.date>='2016-08-23').\
+    filter(Measurement.station =='USC00519281').all()
+    session.close()
+    result =list(np.ravel(tob_ls_t))
   #  return jsonify
 #@app.route("/api/v1.0/<start>")
 #def justice_league():
